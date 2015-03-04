@@ -1,5 +1,5 @@
 mcjsmod = require('..')
 
-mcjsmod.testing1()
-mcjsmod.testing2()
+console.log(mcjsmod)
 
+connection.send("say Hello World!")

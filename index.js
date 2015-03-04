@@ -1,17 +1,45 @@
-function Connection(host, port, passkey, options) {
-	if(!(this instanceof Connection)) return new Connection(host, port, passkey, options);
-	options = options || {};
-	this.host = host;
-	this.port = port;
-	this.passkey = passkey;
-	this.hasAuthed = false;
-	this.outstandingData = null;
-	this.tcp = options.tcp == null ? true : options.tcp;
-	this.challenge = options.challenge == null ? true : options.challenge;
-};
+var Rcon = require('rcon');
 
-Connection.prototype.end = function() {
-	
-};
+var conn = new Rcon('direct.lansing.io', 25575, 'RemoteConnect123');
+conn.on('auth', function() {
+  console.log("Authed!");
 
-module.exports = Connection;
+}).on('response', function(str) {
+  console.log("Got response: " + str);
+
+}).on('end', function() {
+  console.log("Socket closed!");
+  process.exit();
+});
+
+conn.connect();
+
+require('keypress')(process.stdin);
+process.stdin.setRawMode(true);
+process.stdin.resume();
+
+var buffer = "";
+
+process.stdin.on('keypress', function(chunk, key) {
+  if (key && key.ctrl && (key.name == 'c' || key.name == 'd')) {
+    conn.disconnect();
+    return;
+  }
+  process.stdout.write(chunk);
+  if (key && (key.name == 'enter' || key.name == 'return')) {
+    conn.send(buffer);
+    buffer = "";
+    process.stdout.write("\n");
+  } else if (key && key.name == 'backspace') {
+    buffer = buffer.slice(0, -1);
+    process.stdout.write("\033[K"); // Clear to end of line
+  } else {
+    buffer += chunk;
+  }
+
+});
+var dothing = function(text) {
+	conn.send(text)
+}
+
+module.exports = conn;
