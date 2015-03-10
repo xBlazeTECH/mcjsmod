@@ -2,4 +2,4 @@ mcjsmod = require('..')
 
 console.log(mcjsmod)
 
-connection.send("say Hello World!")
+mcjsmod.send("say Hello World!")
